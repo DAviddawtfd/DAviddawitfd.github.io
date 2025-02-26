@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phones Universe</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Добавляем стили для заставки и авторизации */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: splashFade 3s ease forwards;
+        }
+
+        @keyframes splashFade {
+            0% { opacity: 1; }
+            70% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.2); display: none; }
+        }
+
+        .splash-text {
+            font-size: 3em;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        .auth-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--glass);
+            padding: 30px;
+            border-radius: 20px;
+            z-index: 9999;
+            backdrop-filter: blur(20px);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-input {
+            padding: 12px;
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            background: transparent;
+            color: white;
+        }
+
+        .admin-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--glass);
+            padding: 15px;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Заставка -->
+    <div class="splash-screen">
+        <div class="splash-text">by Aniraice</div>
+    </div>
+
+    <!-- Форма авторизации -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-form">
+            <input type="email" id="authEmail" class="auth-input" placeholder="Ваш Email">
+            <input type="password" id="authPassword" class="auth-input" placeholder="Пароль">
+            <button class="nav-btn" onclick="login()">Войти</button>
+            <button class="nav-btn" onclick="register()">Регистрация</button>
+        </div>
+    </div>
+
+    <!-- Остальной интерфейс (перенесите сюда предыдущий HTML) -->
+
+    <script>
+        // Добавляем систему аккаунтов
+        let currentUser = null;
+
+        // Загрузка приветственного экрана
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkAuth();
+            }, 3000);
+        });
+
+        // Проверка авторизации
+        function checkAuth() {
+            const user = localStorage.getItem('phoneUser');
+            if(user) {
+                currentUser = JSON.parse(user);
+                initApp();
+            } else {
+                document.getElementById('authOverlay').style.display = 'block';
+            }
+        }
+
+        // Регистрация
+        function register() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            const user = {
+                email,
+                password,
+                collection: []
+            };
+
+            localStorage.setItem('phoneUser', JSON.stringify(user));
+            currentUser = user;
+            initApp();
+        }
+
+        // Вход
+        function login() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            const user = JSON.parse(localStorage.getItem('phoneUser'));
+            if(user && user.email === email && user.password === password) {
+                currentUser = user;
+                initApp();
+            } else {
+                alert('Неверные данные!');
+            }
+        }
+
+        // Инициализация приложения
+        function initApp() {
+            document.getElementById('authOverlay').style.display = 'none';
+            // Восстанавливаем коллекцию
+            userCollection = currentUser.collection;
+            updateCollection();
+            // Инициализируем остальное...
+        }
+
+        // Обновляем функцию сохранения
+        function saveUserData() {
+            currentUser.collection = userCollection;
+            localStorage.setItem('phoneUser', JSON.stringify(currentUser));
+            
+            // Здесь можно добавить отправку на email через EmailJS
+            sendEmailNotification();
+        }
+
+        // Отправка уведомления на email (требует настройки EmailJS)
+        async function sendEmailNotification() {
+            const email = currentUser.email;
+            // Реализуйте интеграцию с EmailJS
+        }
+
+        // Добавление телефона (для администратора)
+        function addPhone(brand, phoneData) {
+            phonesData[brand].push({
+                ...phoneData,
+                weight: rarityWeights[phoneData.rarity]
+            });
+            generatePhoneCards();
+            saveUserData();
+        }
+    </script>
+
+</body></html>
